@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    networks:
+      - data
+    volumes:
+      - './data:/data/db'
+
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/
+    networks:
+      - data
+    depends_on:
+      - mongo
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - /app/node_modules
+      - ./:/app
+    ports:
+       - ${APP_PORT}:${APP_PORT}
+    depends_on:
+      - mongo
+    networks:
+      - data
+
+networks:
+  data:
