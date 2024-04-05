@@ -1,4 +1,5 @@
-import { Express, Request, Response } from 'express';
+import { Express } from 'express';
+
 import userRouter from '../routers/user'
 import authRouter from '../routers/auth'
 
